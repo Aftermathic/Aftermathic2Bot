@@ -175,8 +175,8 @@ async def addToTextArray(ctx):
             addText(ctx.author.id, text.content)
             subtractTokens(ctx.author.id, 300)
     else:
-        await ctx.send(
-            f"You do not have enough tokens to add to the tex array. You need {300-user_tokens} more tokens!"
+        await ctx.send (
+            f"You do not have enough tokens to add to the text array. You need {300-user_tokens} more tokens!"
         )
 
 
