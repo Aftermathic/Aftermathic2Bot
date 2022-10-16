@@ -130,9 +130,9 @@ async def on_message(message):
     if message.author.bot:
         return
     else:
-        addTokens(author_id, 5)
+        addTokens(author_id, 2)
 
-    await client.process_commands(message)
+    await bot.process_commands(message)
 
 @bot.command()
 async def getRandText(ctx):
