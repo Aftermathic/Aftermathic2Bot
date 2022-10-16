@@ -143,7 +143,7 @@ async def on_message(message):
         addTokens(author_id, 1)
 
     await bot.process_commands(message)
-    
+
 
 @bot.command()
 async def getRandText(ctx):
