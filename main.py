@@ -13,11 +13,13 @@ import asyncio
 
 token = os.environ['bot_token']
 
+
 def get_quote():
     response = requests.get("https://zenquotes.io/api/random")
     json_data = json.loads(response.text)
     quote = json_data[0]['q'] + "\n-" + json_data[0]['a']
     return (quote)
+
 
 def addTokens(user_id, amount):
     exists = False
@@ -25,7 +27,7 @@ def addTokens(user_id, amount):
     if "userTokens" in db.keys():
         for user in db["userTokens"]:
             counter += 1
-            
+
             if user[0] == user_id:
                 old_tokens = user[1]
                 del db["userTokens"][counter]
@@ -42,13 +44,14 @@ def addTokens(user_id, amount):
     else:
         db["userTokens"] = [[user_id, amount]]
 
+
 def subtractTokens(user_id, amount):
     exists = False
     counter = -1
     if "userTokens" in db.keys():
         for user in db["userTokens"]:
             counter += 1
-            
+
             if user[0] == user_id:
                 old_tokens = user[1]
                 del db["userTokens"][counter]
@@ -65,12 +68,14 @@ def subtractTokens(user_id, amount):
     else:
         db["userTokens"] = [[user_id, -amount]]
 
+
 def getAllUsersTokens():
     if "userTokens" in db.keys():
         return db["userTokens"]
     else:
         db["userTokens"] = []
         return db["userTokens"]
+
 
 def getUserTokens(user_id):
     exists = False
@@ -96,6 +101,7 @@ def getUserTokens(user_id):
             if user[0] == user_id:
                 return int(user[1])
 
+
 def addText(user_id, text):
     if "bot_textArray" in db.keys():
         texts = db["bot_textArray"]
@@ -107,11 +113,13 @@ def addText(user_id, text):
 
         db["bot_textArray"] = texts
 
+
 def getAllTexts():
     if "bot_textArray" in db.keys():
         return db["bot_textArray"]
     else:
         return None
+
 
 def removeText(number):
     if "bot_textArray" in db.keys():
@@ -120,8 +128,10 @@ def removeText(number):
 
         db["bot_textArray"] = texts
 
+
 client = discord.Client(intents=discord.Intents.all())
 bot = commands.Bot(command_prefix=">>", intents=discord.Intents.all())
+
 
 @bot.event
 async def on_message(message):
@@ -130,9 +140,10 @@ async def on_message(message):
     if message.author.bot:
         return
     else:
-        addTokens(author_id, 2)
+        addTokens(author_id, 1)
 
     await bot.process_commands(message)
+    
 
 @bot.command()
 async def getRandText(ctx):
@@ -142,15 +153,17 @@ async def getRandText(ctx):
 
     await ctx.send(f"{username}:\n{text[1]}")
 
+
 @bot.command()
 async def addToTextArray(ctx):
+
     def check(message: discord.Message):
         return message.channel == ctx.channel and message.author == ctx.author
 
     user_tokens = getUserTokens(ctx.author.id)
     if (user_tokens >= 100):
         await ctx.send("Enter your text!")
-    
+
         try:
             text = await bot.wait_for('message', check=check, timeout=10.0)
         except asyncio.TimeoutError:
@@ -162,21 +175,25 @@ async def addToTextArray(ctx):
             addText(ctx.author.id, text.content)
             subtractTokens(ctx.author.id, 300)
     else:
-        await ctx.send(f"You do not have enough tokens to add to the tex array. You need {300-user_tokens} more tokens!")
+        await ctx.send(
+            f"You do not have enough tokens to add to the tex array. You need {300-user_tokens} more tokens!"
+        )
+
 
 @bot.command()
 async def showTextArray(ctx):
     await ctx.send("Here is **all** of the text from the TextArray.\n\n")
-    
+
     counter = 0
     for text in getAllTexts():
         await ctx.send(f"{counter} >> {text}")
         counter += 1
 
+
 @bot.command()
 async def flipCoin(ctx, guess):
     amount = random.randint(2, 10)
-    
+
     if (not guess):
         await ctx.send("You didn't enter `heads` or `tails`!")
     else:
@@ -194,25 +211,31 @@ async def flipCoin(ctx, guess):
             await ctx.send(f"You lost {amount} tokens.")
             subtractTokens(ctx.author.id, amount)
 
+
 @bot.command()
-async def getMemberTokens(ctx, user: discord.User=None):
+async def getMemberTokens(ctx, user: discord.User = None):
     if (not user):
-        await ctx.send(f"**{ctx.author.display_name}** currently has {getUserTokens(ctx.author.id)} tokens!")
+        await ctx.send(
+            f"**{ctx.author.display_name}** currently has {getUserTokens(ctx.author.id)} tokens!"
+        )
     else:
         try:
             username = user.display_name
 
-            await ctx.send(f"**{username}** currently has {getUserTokens(user.id)} tokens!")
+            await ctx.send(
+                f"**{username}** currently has {getUserTokens(user.id)} tokens!"
+            )
         except Exception as e:
             await ctx.send(f"Error {e}")
 
+
 @bot.command()
-async def getTokenLeaderboard(ctx):    
+async def getTokenLeaderboard(ctx):
     users = []
     for thing in getAllUsersTokens()[0:10]:
         ruser = await bot.fetch_user(thing[0])
         username = ruser.name
-        
+
         users.append([username, thing[1]])
 
     real_things = sorted(users, reverse=True, key=itemgetter(1))
@@ -223,9 +246,11 @@ async def getTokenLeaderboard(ctx):
         await ctx.send(f"{counter} >> {user[0]} has {user[1]}")
         counter += 1
 
+
 @bot.command()
 async def getInspiringQuote(ctx):
     await ctx.send(f"{get_quote()}")
+
 
 keep_alive()
 
