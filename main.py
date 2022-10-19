@@ -175,7 +175,7 @@ async def addToTextArray(ctx):
             addText(ctx.author.id, text.content)
             subtractTokens(ctx.author.id, 300)
     else:
-        await ctx.send (
+        await ctx.send(
             f"You do not have enough tokens to add to the text array. You need {300-user_tokens} more tokens!"
         )
 
@@ -230,7 +230,7 @@ async def getMemberTokens(ctx, user: discord.User = None):
 
 
 @bot.command()
-async def getTokenLeaderboard(ctx):
+async def getGlobalLeaderBoard(ctx):
     users = []
     for thing in getAllUsersTokens()[0:10]:
         ruser = await bot.fetch_user(thing[0])
@@ -238,13 +238,46 @@ async def getTokenLeaderboard(ctx):
 
         users.append([username, thing[1]])
 
-    real_things = sorted(users, reverse=True, key=itemgetter(1))
+    if (len(users) != 0):
+        real_things = sorted(users, reverse=True, key=itemgetter(1))
 
-    await ctx.send("**GLOBAL** Token Leaderboard:")
-    counter = 1
-    for user in real_things:
-        await ctx.send(f"{counter} >> {user[0]} has {user[1]}")
-        counter += 1
+        await ctx.send("**GLOBAL** Token Leaderboard:")
+        counter = 1
+        for user in real_things:
+            await ctx.send(f"{counter} >> `{user[0]}` has `{user[1]}`")
+            counter += 1
+
+        await ctx.send("**GLOBAL** Token Leaderboard End")
+    else:
+        await ctx.send(
+            "Leaderboard not availible. Try using a command that gives you tokens to activate it!"
+        )
+
+
+@bot.command()
+async def getServerLeaderBoard(ctx):
+    users = []
+    for thing in getAllUsersTokens()[0:10]:
+        try:
+            username = await ctx.guild.fetch_member(thing[0])
+            users.append([username, thing[1]])
+        except:
+            pass
+
+    if (len(users) != 0):
+        real_things = sorted(users, reverse=True, key=itemgetter(1))
+
+        await ctx.send("**SERVER** Token Leaderboard:")
+        counter = 1
+        for user in real_things:
+            await ctx.send(f"{counter} >> `{user[0]}` has `{user[1]}`")
+            counter += 1
+
+        await ctx.send("**Server** Token Leaderboard End")
+    else:
+        await ctx.send(
+            "Leaderboard not availible. Try using a command that gives you tokens to activate it!"
+        )
 
 
 @bot.command()
