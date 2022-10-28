@@ -10,6 +10,7 @@ import requests
 import json
 from operator import itemgetter
 import asyncio
+from datetime import date
 
 token = os.environ['bot_token']
 
@@ -132,9 +133,24 @@ def removeText(number):
 client = discord.Client(intents=discord.Intents.all())
 bot = commands.Bot(command_prefix=">>", intents=discord.Intents.all())
 
+@bot.event
+async def on_ready():
+    month = date.today().month
+    spookPfp = open("imgs/spook.png", "rb").read()
+    winterPfp = open("imgs/winter.png", "rb").read()
+    normPfp = open("imgs/norm.png", "rb").read()
+
+    if (month == 10):
+        await bot.user.edit(avatar=spookPfp)
+    elif (month == 12):
+        await bot.user.edit(avatar=winterPfp)
+    else:
+        await bot.user.edit(avatar=normPfp)
+
+    print("BOT IS READY!")
 
 @bot.event
-async def on_message(message):
+async def on_message(message):        
     author_id = message.author.id
 
     if message.author.bot:
